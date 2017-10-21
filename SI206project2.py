@@ -15,11 +15,9 @@ import requests
 import re
 from bs4 import BeautifulSoup
 
-
 ## Part 1 -- Define your find_urls function here.
 ## INPUT: any string
 ## RETURN VALUE: a list of strings that represents all of the URLs in the input string
-
 
 ## For example: 
 ## find_urls("http://www.google.com is a great site") should return ["http://www.google.com"]
@@ -27,10 +25,17 @@ from bs4 import BeautifulSoup
 ## find_urls("the internet is awesome #worldwideweb") should return [], empty list
 
 def find_urls(s):
-    pass
-    #Your code here
-
-
+    link_list = re.findall('http[s]*://[a-zA-Z0-9]+[.]\S+',s)
+    goodurls = []
+    for url in link_list:
+        fail = False
+        spliturl = url.split('.')
+        for split in spliturl:
+            if len(split)<2:
+                fail = True
+        if fail == False:
+            goodurls.append(url)
+    return goodurls
 
 ## PART 2  - Define a function grab_headlines.
 ## INPUT: N/A. No input.
@@ -38,10 +43,15 @@ def find_urls(s):
 ## http://www.michigandaily.com/section/opinion
 
 def grab_headlines():
-    pass
-    #Your code here
-
-
+    url = 'https://www.michigandaily.com/section/opinion'
+    html = requests.get(url)
+    soup = BeautifulSoup(html.text, "lxml")
+    tags = soup.find('ol').find_all('li') #gets to the unique most read tag and pulls out each article
+    list_headlines = []
+    for tag in tags:
+        tag = tag.find('a').string
+        list_headlines.append(tag)
+    return list_headlines
 
 ## PART 3 (a) Define a function called get_umsi_data.  It should create a dictionary
 ## saved in a variable umsi_titles whose keys are UMSI people's names, and whose 
@@ -65,8 +75,6 @@ def num_students(data):
     pass
     #Your code here
 
-
-
 ########### TESTS; DO NOT CHANGE ANY CODE BELOW THIS LINE! ###########
 def test(got, expected, pts):
     score = 0;
@@ -79,7 +87,6 @@ def test(got, expected, pts):
 
     return score
 
-
 def main():
     total = 0
     print()
@@ -90,10 +97,8 @@ def main():
     total += test(find_urls("the internet is awesome #worldwideweb"),[],10)
     total += test(find_urls("http://.c"),[],10)
 
-
     print('\n\nTask 2: Michigan Daily')
     total += test(grab_headlines(),["MSW students protest staff member's email based on religious bias", 'Teen arrested at Blake Transit Center', "Racist flyers calling to 'Make America White Again' found near Stockwell", "Protesters take to LSA SG panel on C.C. Little's renaming", 'Michigan football player Nate Johnson arrested for domestic violence'],50)
-
 
     print('\n\nTask 3: UMSI Directory')
 
@@ -107,4 +112,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
